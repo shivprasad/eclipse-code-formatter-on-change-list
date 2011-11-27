@@ -1,0 +1,46 @@
+<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+
+<idea-plugin version="6" url="https://code.google.com/p/eclipse-code-formatter-on-change-list">
+	<name>Change List Eclipse Code Formatter</name>
+	<id>eclipse-code-formatter-on-change-list</id>
+	<description>Invokes (external) Eclipse code formatter on affected files from VCS changelist.</description>
+	<version>0.1</version>
+	<vendor email="shivprasad@gmail.com" logo="/byteco/de/intellij/plugin/eclipsechangelistaction/icon16.png">Shivprasad Bade</vendor>
+    <idea-version since-build="9566" until-build=""/>
+	<change-notes><![CDATA[
+			<p>0.1 (2011-11-27)</p>
+			<ul>
+				<li>initial release</li>
+			</ul>
+	]]>
+	</change-notes>
+
+	<application-components>
+	</application-components>
+
+	<project-components>
+		<component>
+			<implementation-class>
+				byteco.de.intellij.plugin.eclipsechangelistaction.ChangelistActionComponent
+			</implementation-class>
+		</component>
+        <component>
+			<implementation-class>byteco.de.intellij.plugin.eclipsechangelistaction.ThePluginProjectComponent</implementation-class>
+		</component>
+	</project-components>
+
+	<actions>
+		<action id="SelectedChangelistPopupAction"
+                class="byteco.de.intellij.plugin.eclipsechangelistaction.SelectedChangelistPopupAction"
+                text="Eclipse Code Formatter"
+                description="Invoke eclipse code formatter on selected changelists."
+                icon="/byteco/de/intellij/plugin/eclipsechangelistaction/icon16.png"
+                >
+            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+
+	<extensions defaultExtensionNs="com.intellij">
+	</extensions>
+
+</idea-plugin>
