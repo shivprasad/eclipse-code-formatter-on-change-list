@@ -15,32 +15,32 @@ import java.util.List;
 
 public class SelectedChangelistPopupAction extends AnAction {
 
-	@Override
-	public void actionPerformed(AnActionEvent e) {
-		DataContext dataContext = e.getDataContext();
+    @Override
+    public void actionPerformed(AnActionEvent e) {
+        DataContext dataContext = e.getDataContext();
 
-		Project project = DataKeys.PROJECT.getData(dataContext);
-		if (project == null) {
-			return;
-		}
+        Project project = DataKeys.PROJECT.getData(dataContext);
+        if (project == null) {
+            return;
+        }
 
-		ChangelistActionComponent clActionComponent = project.getComponent(ChangelistActionComponent.class);
+        ChangelistActionComponent clActionComponent = project.getComponent(ChangelistActionComponent.class);
 
-		ChangeList[] selectedChangeLists = e.getData(VcsDataKeys.CHANGE_LISTS);
-		if (selectedChangeLists == null) {
-			return;
-		}
+        ChangeList[] selectedChangeLists = e.getData(VcsDataKeys.CHANGE_LISTS);
+        if (selectedChangeLists == null) {
+            return;
+        }
 
-		for (ChangeList iChangeList : selectedChangeLists) {
-			String changelistName = iChangeList.getName();
-			List<Change> changes = new ArrayList<Change>(iChangeList.getChanges());
+        for (ChangeList iChangeList : selectedChangeLists) {
+            String changelistName = iChangeList.getName();
+            List<Change> changes = new ArrayList<Change>(iChangeList.getChanges());
 
-			List<VirtualFile> changeFiles = new ArrayList<VirtualFile>(changes.size());
-			for (Change change : changes) {
-				changeFiles.add(change.getVirtualFile());
-			}
-			clActionComponent.invokeAction(project, changeFiles);
-			// TODO: force opening the console (depending on a flag)?
-		}
-	}
+            List<VirtualFile> changeFiles = new ArrayList<VirtualFile>(changes.size());
+            for (Change change : changes) {
+                changeFiles.add(change.getVirtualFile());
+            }
+            clActionComponent.invokeAction(project, changeFiles);
+            // TODO: force opening the console (depending on a flag)?
+        }
+    }
 }

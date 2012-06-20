@@ -20,155 +20,155 @@ import java.awt.*;
 
 public class CmdExecutor {
 
-	private static final Logger LOG = Logger.getLogger(CmdExecutor.class);
+    private static final Logger LOG = Logger.getLogger(CmdExecutor.class);
 
-	private static final String ID = "Eclipse Code Formatter Console";
+    private static final String ID = "Eclipse Code Formatter Console";
 
-	private static ToolWindow toolWindow;
+    private static ToolWindow toolWindow;
 
-	private static ConsoleView consoleView;
+    private static ConsoleView consoleView;
 
-	private static String lastCommand;
-	private static boolean lastInBackground;
+    private static String lastCommand;
 
-	/**
-	 * Returns console view. Makes sure its never <code>null</code>.
-	 */
-	private static ConsoleView getConsoleView(Project project) {
-		if (consoleView == null) {
-			TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
-			consoleView = builder.getConsole();
-		}
-		return consoleView;
-	}
+    private static boolean lastInBackground;
 
-	// ---------------------------------------------------------------- execution
+    /**
+     * Returns console view. Makes sure its never <code>null</code>.
+     */
+    private static ConsoleView getConsoleView(Project project) {
+        if (consoleView == null) {
+            TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
+            consoleView = builder.getConsole();
+        }
+        return consoleView;
+    }
 
-	/**
-	 * Executes command and shows it in the console.
-	 */
-	public static void execute(final Project project, final String command, boolean inBackground) {
+    // ---------------------------------------------------------------- execution
 
-		ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-		toolWindow = toolWindowManager.getToolWindow(ID);
+    /**
+     * Executes command and shows it in the console.
+     */
+    public static void execute(final Project project, final String command, boolean inBackground) {
 
-		if (toolWindow == null) {
-			toolWindow = createToolWindow(toolWindowManager, project);
-		}
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
+        toolWindow = toolWindowManager.getToolWindow(ID);
 
-		lastCommand = command;
-		lastInBackground = inBackground;
+        if (toolWindow == null) {
+            toolWindow = createToolWindow(toolWindowManager, project);
+        }
 
-		if (inBackground) {
-			LOG.info("Invoking command in background: " + command);
-			SwingWorker worker = new SwingWorker() {
-				@Override
-				public Object construct() {
-					executeCommand(command, project);
-					return null;
-				}
-			};
-			worker.start();
-		} else {
-			LOG.info("Invoking command: " + command);
-			executeCommand(command, project);
-		}
-	}
+        lastCommand = command;
+        lastInBackground = inBackground;
 
-	private static int executeCommand(String command, Project project) {
+        if (inBackground) {
+            LOG.info("Invoking command in background: " + command);
+            SwingWorker worker = new SwingWorker() {
+                @Override
+                public Object construct() {
+                    executeCommand(command, project);
+                    return null;
+                }
+            };
+            worker.start();
+        } else {
+            LOG.info("Invoking command: " + command);
+            executeCommand(command, project);
+        }
+    }
 
-		try {
-			Runtime rt = Runtime.getRuntime();
+    private static int executeCommand(String command, Project project) {
 
-			Process proc = rt.exec(command);
+        try {
+            Runtime rt = Runtime.getRuntime();
 
-			if (project != null) {
-				OSProcessHandler handler = new OSProcessHandler(proc, command);
-				getConsoleView(project).attachToProcess(handler);
-				handler.startNotify();
-			}
+            Process proc = rt.exec(command);
 
-			// any error???
-			int exitValue = proc.waitFor();
-			LOG.debug("Exit value: " + exitValue);
-			return exitValue;
-		}
-		catch (Exception ex) {
-			LOG.warn("Error executing command.", ex);
-		}
-		return 0;
-	}
+            if (project != null) {
+                OSProcessHandler handler = new OSProcessHandler(proc, command);
+                getConsoleView(project).attachToProcess(handler);
+                handler.startNotify();
+            }
 
-	// ---------------------------------------------------------------- tool window
+            // any error???
+            int exitValue = proc.waitFor();
+            LOG.debug("Exit value: " + exitValue);
+            return exitValue;
+        } catch (Exception ex) {
+            LOG.warn("Error executing command.", ex);
+        }
+        return 0;
+    }
 
-	/**
-	 * Creates tool window.
-	 */
-	private static ToolWindow createToolWindow(final ToolWindowManager toolWindowManager, final Project project) {
+    // ---------------------------------------------------------------- tool window
 
-		DefaultActionGroup actionGroup = new DefaultActionGroup();
-		actionGroup.add(new AnAction("Repeat last changelist action",
-			"Invoke preivous user action on VCS changelist.",
-			IconLoader.getIcon
-			("/byteco/de/intellij/plugin/eclipsechangelistaction/icon16.png")) {
-			@Override
-			public void actionPerformed(AnActionEvent anActionEvent) {
-				execute(project, lastCommand, lastInBackground);
-			}
-		});
-		actionGroup.add(new AnAction("Clear console",
-			"Clear console window.",
-			IconLoader.getIcon
-			("/byteco/de/intellij/plugin/eclipsechangelistaction/clear.png")) {
-			@Override
-			public void actionPerformed(AnActionEvent anActionEvent) {
-				getConsoleView(project).clear();
-			}
-		});
-		actionGroup.add(new AnAction("Close",
-			"Close Changelist Action window.",
-			IconLoader.getIcon("/actions/cancel.png")) {
-			@Override
-			public void actionPerformed(AnActionEvent anActionEvent) {
-				getConsoleView(project).clear();
-				toolWindowManager.unregisterToolWindow(ID);
-			}
-		});
+    /**
+     * Creates tool window.
+     */
+    private static ToolWindow createToolWindow(final ToolWindowManager toolWindowManager, final Project project) {
 
-		ActionManager actionManager = ActionManager.getInstance();
-		JComponent toolbar = actionManager.createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, false).getComponent();
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        actionGroup.add(new AnAction("Repeat last changelist action",
+                "Invoke preivous user action on VCS changelist.",
+                IconLoader.getIcon
+                        ("/byteco/de/intellij/plugin/eclipsechangelistaction/icon16.png")) {
+            @Override
+            public void actionPerformed(AnActionEvent anActionEvent) {
+                execute(project, lastCommand, lastInBackground);
+            }
+        });
+        actionGroup.add(new AnAction("Clear console",
+                "Clear console window.",
+                IconLoader.getIcon
+                        ("/byteco/de/intellij/plugin/eclipsechangelistaction/clear.png")) {
+            @Override
+            public void actionPerformed(AnActionEvent anActionEvent) {
+                getConsoleView(project).clear();
+            }
+        });
+        actionGroup.add(new AnAction("Close",
+                "Close Changelist Action window.",
+                IconLoader.getIcon("/actions/cancel.png")) {
+            @Override
+            public void actionPerformed(AnActionEvent anActionEvent) {
+                getConsoleView(project).clear();
+                toolWindowManager.unregisterToolWindow(ID);
+            }
+        });
 
-		final JPanel panel = new JPanel(new BorderLayout());
-		panel.add(toolbar, BorderLayout.WEST);
+        ActionManager actionManager = ActionManager.getInstance();
+        JComponent toolbar = actionManager.createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, false).getComponent();
 
-		ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-		Content content = contentFactory.createContent(getConsoleView(project).getComponent(), "", false);
+        final JPanel panel = new JPanel(new BorderLayout());
+        panel.add(toolbar, BorderLayout.WEST);
 
-		panel.add(content.getComponent(), BorderLayout.CENTER);
+        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        Content content = contentFactory.createContent(getConsoleView(project).getComponent(), "", false);
 
-		ToolWindow window = registerToolWindow(toolWindowManager, panel);
+        panel.add(content.getComponent(), BorderLayout.CENTER);
 
-		window.show(
-			new Runnable() {
-				public void run() {
-//					System.out.println("Do something here");
-				}
-			});
+        ToolWindow window = registerToolWindow(toolWindowManager, panel);
 
-		return window;
-	}
+        window.show(
+                new Runnable() {
+                    public void run() {
+                        // System.out.println("Do something here");
+                    }
+                });
 
-	private static ToolWindow registerToolWindow(final ToolWindowManager toolWindowManager, final JPanel panel) {
+        return window;
+    }
 
-		final ToolWindow window = toolWindowManager.registerToolWindow(ID, true, ToolWindowAnchor.BOTTOM);
-		final ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-		final Content content = contentFactory.createContent(panel, "", false);
+    private static ToolWindow registerToolWindow(final ToolWindowManager toolWindowManager, final JPanel panel) {
 
-		content.setCloseable(false);
-		window.getContentManager().addContent(content);
-		window.setIcon(IconLoader.getIcon("/byteco/de/intellij/plugin/eclipsechangelistaction/icon16.png"));
+        final ToolWindow window = toolWindowManager.registerToolWindow(ID, true, ToolWindowAnchor.BOTTOM);
+        final ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        final Content content = contentFactory.createContent(panel, "", false);
 
-		return window;
-	}
+        content.setCloseable(false);
+        window.getContentManager().addContent(content);
+        window.setIcon(IconLoader.getIcon("/byteco/de/intellij/plugin/eclipsechangelistaction/icon16.png"));
+
+        return window;
+    }
 
 }

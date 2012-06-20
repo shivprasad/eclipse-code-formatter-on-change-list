@@ -10,76 +10,84 @@ import java.util.List;
 
 public class ChangelistUtil {
 
-	private static final String vfsFileSepartor = "/";
+    private static final String vfsFileSepartor = "/";
 
-	public static boolean isAbsolutePath(int pathType) {
-		return pathType == 0;
-	}
+    public static boolean isAbsolutePath(int pathType) {
+        return pathType == 0;
+    }
 
-	public static boolean isRelativePathFromContentRoot(int pathType) {
-		return pathType == 1;
-	}
+    public static boolean isRelativePathFromContentRoot(int pathType) {
+        return pathType == 1;
+    }
 
-	public static boolean isRelativePathFromProjectRoot(int pathType) {
-		return pathType == 2;
-	}
+    public static boolean isRelativePathFromProjectRoot(int pathType) {
+        return pathType == 2;
+    }
 
-	/**
-	 * Creates a unique list of filenames from the given changelist files.
-	 */
-	public static LinkedHashSet<String> createFilenames(List<VirtualFile> changedFiles, Project project, int pathType) {
+    /**
+     * Creates a unique list of filenames from the given changelist files.
+     */
+    public static LinkedHashSet<String> createFilenames(List<VirtualFile> changedFiles, Project project, int pathType) {
 
-		String prjBaseDir = project.getBaseDir().getPath();
+        String prjBaseDir = project.getBaseDir().getPath();
 
-		final ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
+        final ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
 
-		LinkedHashSet<String> allFiles = new LinkedHashSet<String>(changedFiles.size());
+        LinkedHashSet<String> allFiles = new LinkedHashSet<String>(changedFiles.size());
 
-		for (VirtualFile changeFile : changedFiles) {
+        for (VirtualFile changeFile : changedFiles) {
 
-			if (changeFile == null) {
-				continue;
-			}
+            if (changeFile == null) {
+                continue;
+            }
 
-			String path = changeFile.getPath();
+            if(!changeFile.getName().toLowerCase().endsWith(".java"))
+                continue;
 
-			if (!isAbsolutePath(pathType)) {
+            String path = getPath(pathType, prjBaseDir, fileIndex, changeFile);
 
-				String relativePrefix;
-				if (isRelativePathFromProjectRoot(pathType)) {
-					relativePrefix = prjBaseDir;
-				} else {
-					VirtualFile contentRootForFile = fileIndex.getContentRootForFile(changeFile);
-					relativePrefix = contentRootForFile.getPath();
-				}
+            if (allFiles.contains(path) == false) {
+                allFiles.add(path);
+            }
+        }
 
-				if (changeFile.getPath().startsWith(relativePrefix)) {
-					path = path.substring(relativePrefix.length());
-				}
+        return allFiles;
+    }
 
-				if (path.startsWith(vfsFileSepartor)) {
-					path = path.substring(vfsFileSepartor.length());
-				}
-			}
+    public static String getPath(int pathType, String prjBaseDir, ProjectFileIndex fileIndex, VirtualFile changeFile) {
+        String path = changeFile.getPath();
 
-			if (allFiles.contains(path) == false) {
-				allFiles.add(path);
-			}
-		}
+        if (!isAbsolutePath(pathType)) {
 
-		return allFiles;
-	}
+            String relativePrefix;
+            if (isRelativePathFromProjectRoot(pathType)) {
+                relativePrefix = prjBaseDir;
+            } else {
+                VirtualFile contentRootForFile = fileIndex.getContentRootForFile(changeFile);
+                relativePrefix = contentRootForFile.getPath();
+            }
 
-	public static String createFilenameFromChangelistName(String changelistName) {
-		String name = changelistName.replace(" ", "_");
-		name = name.replace(",", "");
-		name = name.replace("/", "_");
-		name = name.replace("\\", "_");
+            if (changeFile.getPath().startsWith(relativePrefix)) {
+                path = path.substring(relativePrefix.length());
+            }
 
-		// I'm always writing stuff like "PTR - 1234",
-		// which turns in to "PTR_-_1234", blech
-		name = name.replace("_-_", "-");
+            if (path.startsWith(vfsFileSepartor)) {
+                path = path.substring(vfsFileSepartor.length());
+            }
+        }
+        return path;
+    }
 
-		return name;
-	}
+    public static String createFilenameFromChangelistName(String changelistName) {
+        String name = changelistName.replace(" ", "_");
+        name = name.replace(",", "");
+        name = name.replace("/", "_");
+        name = name.replace("\\", "_");
+
+        // I'm always writing stuff like "PTR - 1234",
+        // which turns in to "PTR_-_1234", blech
+        name = name.replace("_-_", "-");
+
+        return name;
+    }
 }

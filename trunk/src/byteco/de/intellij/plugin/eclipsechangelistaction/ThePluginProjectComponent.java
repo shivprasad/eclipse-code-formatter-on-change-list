@@ -7,19 +7,17 @@ import com.intellij.openapi.vcs.changes.ChangeListManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * User: shiv
- * Date: 27/11/2011
- * Time: 12:16
+ * User: shiv Date: 27/11/2011 Time: 12:16
  */
-public class ThePluginProjectComponent implements ProjectComponent
-{
+public class ThePluginProjectComponent implements ProjectComponent {
 
     private final Project project;
+
     private boolean created;
 
     public ThePluginProjectComponent(Project project) {
         this.project = project;
-        created=false;
+        created = false;
         StartupManager.getInstance(project).registerPostStartupActivity(new Runnable() {
             public void run() {
                 initializePlugin();
@@ -30,15 +28,14 @@ public class ThePluginProjectComponent implements ProjectComponent
 
     private void initializePlugin() {
         if (!created) {
-			ChangeListManager.getInstance(project).registerCommitExecutor(
-					new EclipseCodeFormatterExecutor(project));
+            ChangeListManager.getInstance(project).registerCommitExecutor(
+                    new EclipseCodeFormatterExecutor(project));
             created = true;
         }
     }
 
-
     public void projectOpened() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void projectClosed() {
@@ -48,15 +45,16 @@ public class ThePluginProjectComponent implements ProjectComponent
     }
 
     public void initComponent() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void disposeComponent() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // To change body of implemented methods use File | Settings | File Templates.
     }
 
     @NotNull
     public String getComponentName() {
-        return "TheChangeListPluginProjectComponent";  //To change body of implemented methods use File | Settings | File Templates.
+        return "TheChangeListPluginProjectComponent"; // To change body of implemented methods use File | Settings |
+                                                      // File Templates.
     }
 }

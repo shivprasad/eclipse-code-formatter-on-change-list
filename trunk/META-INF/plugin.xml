@@ -41,6 +41,7 @@
     </actions>
 
 	<extensions defaultExtensionNs="com.intellij">
+        <checkinHandlerFactory implementation="byteco.de.intellij.plugin.eclipsechangelistaction.ChangeListBeforeCheckinHandlerFactory"/>
 	</extensions>
 
 </idea-plugin>
